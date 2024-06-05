@@ -83,8 +83,17 @@ const AppFunctional = (props) => {
 
   const onSubmit = async (evt) => {
     evt.preventDefault();
-    const { x, y } = getXY();
-    const { steps, email } = state;
+    const { email } = state;
+
+    if (!email) {
+      setState({ ...state, message: "Please provide an email address" });
+      return;
+    };
+
+    if (email === bannedEmail) {
+      setState({ ...state, message: "Banned email address"});
+      return; 
+    }
 
     try {
       const response = await axios.post('http://localhost:9000/api/result', {
