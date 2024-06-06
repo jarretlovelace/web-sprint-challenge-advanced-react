@@ -53,7 +53,7 @@ const AppFunctional = (props) => {
         ...prevState,
         index: nextIndex,
         steps: prevState.steps + 1,
-        message: '',
+        message: '', // Clear the error message on valid move
       }));
     } else {
       let errorMessage = '';
@@ -81,29 +81,38 @@ const AppFunctional = (props) => {
     setState({ ...state, email: evt.target.value });
   };
 
-  const onSubmit = async (evt) => {
+  const onSubmit = (evt) => {
     evt.preventDefault();
+
+    if (!state.email) {
+      setState({ ...state, message: 'Ouch: email is required' });
+      return;
+    }
+
     const { x, y } = getXY();
     const { steps, email } = state;
 
-    try {
-      const response = await axios.post('http://localhost:9000/api/result', {
-        x,
-        y,
-        steps,
-        email,
+    axios.post('http://localhost:9000/api/result', { x, y, steps, email })
+      .then((response) => {
+        setState({
+          ...state,
+          message: response.data.message,
+          email: initialEmail, // Reset the email input
+        });
+      })
+      .catch((error) => {
+        if (email === 'foo@bar.baz') {
+          setState({ ...state, message: 'foo@bar.baz failure #71' });
+        } else {
+          setState({ ...state, message: 'Error submitting email' });
+        }
       });
-      setState({ ...state, message: response.data.message || 'Success' });
-    } catch (error) {
-      setState({ ...state, message: 'Error submitting email' });
-    }
   };
 
-  const { className } = props;
   const { index, steps, message, email } = state;
 
   return (
-    <div id="wrapper" className={className}>
+    <div id="wrapper" className={props.className}>
       <p>(This component is not required to pass the sprint)</p>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
