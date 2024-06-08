@@ -89,16 +89,25 @@ const AppFunctional = (props) => {
       return;
     }
 
+    if (!/\S+@\S+\.\S+/.test(state.email)) {
+      setState({ ...state, message: 'Ouch: email must be a valid email' });
+      return;
+    }
+
     const { x, y } = getXY();
     const { steps, email } = state;
 
     axios.post('http://localhost:9000/api/result', { x, y, steps, email })
       .then((response) => {
-        setState({
-          ...state,
-          message: response.data.message,
-          email: initialEmail, // Reset the email input
-        });
+        if (response.data.message === 'Success') {
+          setState((prevState) => ({
+            ...prevState,
+            message: 'Success!',
+            email: initialEmail, // Reset the email input
+          }));
+        } else {
+          setState({ ...state, message: response.data.message });
+        }
       })
       .catch((error) => {
         if (email === 'foo@bar.baz') {
@@ -116,7 +125,7 @@ const AppFunctional = (props) => {
       <p>(This component is not required to pass the sprint)</p>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
-        <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'timmes'}</h3>
+        <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
       </div>
       <div id="grid">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
