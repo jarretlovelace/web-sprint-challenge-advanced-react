@@ -55,7 +55,7 @@ export default function AppFunctional(props) {
       setSteps(prevSteps => prevSteps + 1);
       setMessage(initialMessage); // Clear any previous error messages
     } else {
-      setMessage('You can\'t go that way');
+      setMessage("You can't go that way");
     }
   }
 
@@ -99,7 +99,7 @@ export default function AppFunctional(props) {
         ))}
       </div>
       <div className="info">
-        <h3 id="message">{message}</h3>
+        <h3 id="message" data-testid="message">{message}</h3>
       </div>
       <div id="keypad">
         <button id="left" onClick={move}>LEFT</button>

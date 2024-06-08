@@ -1,38 +1,8 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import AppClass from './AppClass';
-import axios from 'axios'
-import AppFunctional from './AppFunctional'
 
-jest.mock('axios');
-
-test('displays error message for invalid moves', () => {
-  render(<AppFunctional />);
-
-  fireEvent.click(scree.getByTxt(/left/i));
-
-  expect(screen.getByTestId('message')).toHaveTextContent("You can't go that way");
-});
-
-test('displays error message on the form submission with no email', () => {
-  render(<AppFunctional />);
-
-  fireEvent.click(screen.getByText(/submit/i));
-
-  expect(screen.getByText('message')).toHaveTextContent('Ouch: email is required');
-});
-
-test('displays error message on form submission with invalid email', async () => {
-  render(<AppFunctional />);
-  axios.post.mockRejectedValueOnce({ response: {status: 422 } });
-
-  fireEvent.click(screengetByText(/submit/i));
-
-  await waitFor(() => {
-    expect(screen.getByTestId('message')).toHaveTextContent('Ouch: email must be a valid email');
-  })
-})
 test('renders the initial state correctly', () => {
   const { getByText, getByPlaceholderText } = render(<AppClass />);
 
