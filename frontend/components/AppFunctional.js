@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-// Suggested initial states
-const initialMessage = '';
-const initialEmail = '';
-const initialSteps = 0;
-const initialIndex = 4; // the index the "B" is at
+const AppFunctional = (props) => {
+  const initialState = {
+    message: initialMessage,
+    email: initialEmail,
+    index: initialIndex,
+    steps: initialSteps,
+  };
+
+  const [state, setState] = useState(initialState);
+
 
 export default function AppFunctional(props) {
   const [message, setMessage] = useState(initialMessage);
@@ -19,45 +24,77 @@ export default function AppFunctional(props) {
     [1, 3], [2, 3], [3, 3],
   ];
 
-  function getXY() {
-    return coordinates[index];
-  }
+  const reset = () => {
+    const { index } = state;
+    let newIndex = index;
+  
+    const getNextIndex = (direction) => {
+      const { index } = state;
+      let newIndex = index;
+  
+      if (direction === 'left' && index % 3 !== 0) newIndex -= 1;
+      if (direction === 'right' && index % 3 !== 2) newIndex += 1;
+      if (direction === 'up' && index > 2) newIndex -= 3;
+      if (direction === 'down' && index < 6) newIndex += 3;
+  
+      return newIndex;
+  };
 
-  function getXYMessage() {
-    const [x, y] = getXY();
+  const getXY = () => {
+    const { index } = state;
+    const x = (index % 3) + 1;
+    const y = Math.floor(index / 3) + 1;
+    return { x, y };
+  };
+
+  
+  const getXYMessage = () => {
+    const { x, y } = getXY();
     return `Coordinates (${x}, ${y})`;
-  }
+  };
 
-  function reset() {
-    setMessage(initialMessage);
-    setEmail(initialEmail);
-    setSteps(initialSteps);
-    setIndex(initialIndex);
-  }
 
-  function getNextIndex(direction) {
-    const nextIndexMap = {
-      left: index % 3 !== 0 ? index - 1 : index,
-      right: index % 3 !== 2 ? index + 1 : index,
-      up: index >= 3 ? index - 3 : index,
-      down: index <= 5 ? index + 3 : index,
-    };
-    return nextIndexMap[direction];
-  }
-
-  function move(evt) {
+  const move = (evt) => {
     const direction = evt.target.id;
     const nextIndex = getNextIndex(direction);
 
-    // Check if the move is valid
-    if (nextIndex !== index) {
-      setIndex(nextIndex);
-      setSteps(prevSteps => prevSteps + 1);
-      setMessage(initialMessage); // Clear any previous error messages
+    if (nextIndex !== state.index) {
+      setState((prevState) => ({
+        ...prevState,
+        index: nextIndex,
+        steps: prevState.steps + 1,
+        message: '', // Clear the error message on valid move
+      }));
     } else {
-      setMessage("You can't go that way");
+      let errorMessage = '';
+      if (direction === 'up' && state.index < 3) {
+        errorMessage = "You can't go up";
+      } else if (direction === 'left' && state.index % 3 === 0) {
+        errorMessage = "You can't go left";
+      } else if (direction === 'right' && state.index % 3 === 2) {
+        errorMessage = "You can't go right";
+      } else {
+        switch (direction) {
+          case 'left':
+            errorMessage = "You can't go left";
+            break;
+          case 'right':
+            errorMessage = "You can't go right";
+            break;
+          case 'up':
+            errorMessage = "You can't go up";
+            break;
+          case 'down':
+            errorMessage = "You can't go down";
+            break;
+          default:
+            break;
+        }
+      }
+      setState((prevState) => ({ ...prevState, message: errorMessage }));
     }
-  }
+  };
+
 
   function onChange(evt) {
     setEmail(evt.target.value);
