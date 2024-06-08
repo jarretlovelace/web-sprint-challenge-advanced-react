@@ -1,134 +1,98 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+// Suggested initial states
 const initialMessage = '';
 const initialEmail = '';
 const initialSteps = 0;
-const initialIndex = 4;
+const initialIndex = 4; // the index the "B" is at
 
-const initialState = {
-  message: initialMessage,
-  email: initialEmail,
-  index: initialIndex,
-  steps: initialSteps,
-};
+export default function AppFunctional(props) {
+  const [message, setMessage] = useState(initialMessage);
+  const [email, setEmail] = useState(initialEmail);
+  const [steps, setSteps] = useState(initialSteps);
+  const [index, setIndex] = useState(initialIndex);
 
-const AppFunctional = (props) => {
-  const [state, setState] = useState(initialState);
+  const coordinates = [
+    [1, 1], [2, 1], [3, 1],
+    [1, 2], [2, 2], [3, 2],
+    [1, 3], [2, 3], [3, 3],
+  ];
 
-  const getXY = () => {
-    const { index } = state;
-    const x = (index % 3) + 1;
-    const y = Math.floor(index / 3) + 1;
-    return { x, y };
-  };
+  function getXY() {
+    return coordinates[index];
+  }
 
-  const getXYMessage = () => {
-    const { x, y } = getXY();
+  function getXYMessage() {
+    const [x, y] = getXY();
     return `Coordinates (${x}, ${y})`;
-  };
+  }
 
-  const reset = () => {
-    setState(initialState);
-  };
+  function reset() {
+    setMessage(initialMessage);
+    setEmail(initialEmail);
+    setSteps(initialSteps);
+    setIndex(initialIndex);
+  }
 
-  const getNextIndex = (direction) => {
-    const { index } = state;
-    let newIndex = index;
+  function getNextIndex(direction) {
+    const nextIndexMap = {
+      left: index % 3 !== 0 ? index - 1 : index,
+      right: index % 3 !== 2 ? index + 1 : index,
+      up: index >= 3 ? index - 3 : index,
+      down: index <= 5 ? index + 3 : index,
+    };
+    return nextIndexMap[direction];
+  }
 
-    if (direction === 'left' && index % 3 !== 0) newIndex -= 1;
-    if (direction === 'right' && index % 3 !== 2) newIndex += 1;
-    if (direction === 'up' && index > 2) newIndex -= 3;
-    if (direction === 'down' && index < 6) newIndex += 3;
-
-    return newIndex;
-  };
-
-  const move = (evt) => {
+  function move(evt) {
     const direction = evt.target.id;
     const nextIndex = getNextIndex(direction);
 
-    if (nextIndex !== state.index) {
-      setState((prevState) => ({
-        ...prevState,
-        index: nextIndex,
-        steps: prevState.steps + 1,
-        message: '', // Clear the error message on valid move
-      }));
+    // Check if the move is valid
+    if (nextIndex !== index) {
+      setIndex(nextIndex);
+      setSteps(prevSteps => prevSteps + 1);
+      setMessage(initialMessage); // Clear any previous error messages
     } else {
-      let errorMessage = '';
-      switch (direction) {
-        case 'left':
-          errorMessage = "You can't go left";
-          break;
-        case 'right':
-          errorMessage = "You can't go right";
-          break;
-        case 'up':
-          errorMessage = "You can't go up";
-          break;
-        case 'down':
-          errorMessage = "You can't go down";
-          break;
-        default:
-          break;
-      }
-      setState((prevState) => ({ ...prevState, message: errorMessage }));
+      setMessage("You can't go that way");
     }
-  };
+  }
 
-  const onChange = (evt) => {
-    setState({ ...state, email: evt.target.value });
-  };
+  function onChange(evt) {
+    setEmail(evt.target.value);
+  }
 
-  const onSubmit = (evt) => {
+  function onSubmit(evt) {
     evt.preventDefault();
-
-    if (!state.email) {
-      setState({ ...state, message: 'Ouch: email is required' });
+    if (email.trim() === '') {
+      setMessage('Ouch: email is required');
       return;
     }
-
-    if (!/\S+@\S+\.\S+/.test(state.email)) {
-      setState({ ...state, message: 'Ouch: email must be a valid email' });
-      return;
-    }
-
-    const { x, y } = getXY();
-    const { steps, email } = state;
-
-    axios.post('http://localhost:9000/api/result', { x, y, steps, email })
-      .then((response) => {
-        if (response.data.message === 'Success') {
-          setState((prevState) => ({
-            ...prevState,
-            message: 'Success!',
-            email: initialEmail, // Reset the email input
-          }));
-        } else {
-          setState({ ...state, message: response.data.message });
-        }
+    const [x, y] = getXY();
+    const payload = { x, y, steps, email };
+    axios.post('http://localhost:9000/api/result', payload)
+      .then(response => {
+        setMessage(response.data.message);
       })
-      .catch((error) => {
-        if (email === 'foo@bar.baz') {
-          setState({ ...state, message: 'foo@bar.baz failure #71' });
+      .catch(error => {
+        // Handle different types of errors (like invalid email)
+        if (error.response && error.response.status === 422) {
+          setMessage('Ouch: email must be a valid email');
         } else {
-          setState({ ...state, message: 'Error submitting email' });
+          setMessage(error.response.data.message);
         }
       });
-  };
-
-  const { index, steps, message, email } = state;
+  }
 
   return (
     <div id="wrapper" className={props.className}>
-      <p>(This component is not required to pass the sprint)</p>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
         <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
       </div>
       <div id="grid">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+        {coordinates.map((_, idx) => (
           <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
             {idx === index ? 'B' : null}
           </div>
@@ -142,20 +106,4 @@ const AppFunctional = (props) => {
         <button id="up" onClick={move}>UP</button>
         <button id="right" onClick={move}>RIGHT</button>
         <button id="down" onClick={move}>DOWN</button>
-        <button id="reset" onClick={reset}>reset</button>
-      </div>
-      <form onSubmit={onSubmit}>
-        <input
-          id="email"
-          type="email"
-          placeholder="type email"
-          value={email}
-          onChange={onChange}
-        />
-        <input id="submit" type="submit" />
-      </form>
-    </div>
-  );
-};
-
-export default AppFunctional;
+        <button id="reset" onClick={reset
