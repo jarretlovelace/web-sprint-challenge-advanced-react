@@ -118,6 +118,7 @@ const AppFunctional = (props) => {
       });
   };
 
+  
   const { index, steps, message, email } = state;
 
   return (
