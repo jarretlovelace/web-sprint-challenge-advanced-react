@@ -53,26 +53,27 @@ const AppFunctional = (props) => {
         ...prevState,
         index: nextIndex,
         steps: prevState.steps + 1,
-        message: '', // Clear the error message on valid move
+        message: '',
       }));
     } else {
       let errorMessage = '';
       switch (direction) {
         case 'left':
-          errorMessage = "You can't go left";
+          errorMessage = "You cant go left";
           break;
         case 'right':
-          errorMessage = "You can't go right";
+          errorMessage = "You cant go right";
           break;
         case 'up':
-          errorMessage = "You can't go up";
+          errorMessage = "You cant go up";
           break;
         case 'down':
-          errorMessage = "You can't go down";
+          errorMessage = "You cant go down";
           break;
         default:
           break;
       }
+      console.log(`Invalid move: ${errorMessage}`);
       setState((prevState) => ({ ...prevState, message: errorMessage }));
     }
   };
@@ -103,7 +104,7 @@ const AppFunctional = (props) => {
           setState((prevState) => ({
             ...prevState,
             message: 'Success!',
-            email: initialEmail, // Reset the email input
+            email: initialEmail, 
           }));
         } else {
           setState({ ...state, message: response.data.message });
