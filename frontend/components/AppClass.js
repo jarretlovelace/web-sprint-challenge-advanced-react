@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Suggested initial states
+
 const initialMessage = '';
 const initialEmail = '';
 const initialSteps = 0;
@@ -82,10 +82,21 @@ export default class AppClass extends React.Component {
 
   onSubmit = (evt) => {
     evt.preventDefault();
+
+    if (!this.state.email) {
+      this.setState({ message: 'Ouch: email is required' });
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(this.state.email)) {
+      this.setState({ message: 'Ouch: email must be a valid email' });
+      return;
+    }
+
     const { x, y } = this.getXY();
     const { steps, email } = this.state;
 
-    fetch(`http://localhost:9000/api/result`, {
+    fetch('http://localhost:9000/api/result', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +105,14 @@ export default class AppClass extends React.Component {
     })
       .then((response) => response.json())
       .then((data) => {
-        this.setState({ message: data.message || 'Error submitting email' });
+        if (data.message === 'Success') {
+          this.setState({
+            message: 'Success!',
+            email: initialEmail, // Reset the email input
+          });
+        } else {
+          this.setState({ message: data.message });
+        }
       })
       .catch(() => {
         this.setState({ message: 'Error submitting email' });
@@ -110,7 +128,7 @@ export default class AppClass extends React.Component {
         <p>(This component is not required to pass the sprint)</p>
         <div className="info">
           <h3 id="coordinates">{this.getXYMessage()}</h3>
-          <h3 id="steps">You moved {steps} times</h3>
+          <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
         </div>
         <div id="grid">
           {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (

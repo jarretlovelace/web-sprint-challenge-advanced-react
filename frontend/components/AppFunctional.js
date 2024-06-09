@@ -157,3 +157,5 @@ const AppFunctional = (props) => {
     </div>
   );
 };
+
+export default AppFunctional; 
