@@ -100,11 +100,10 @@ const AppFunctional = (props) => {
     axios.post('http://localhost:9000/api/result', { x, y, steps, email })
       .then((response) => {
         if (response.data.message === 'Success') {
-          setState((prevState) => ({
-            ...prevState,
-            message: 'Success!',
-            email: initialEmail, 
-          }));
+          setState({
+            ...initialState,
+            message: 'Success!', 
+          });
         } else {
           setState({ ...state, message: response.data.message });
         }
@@ -123,7 +122,7 @@ const AppFunctional = (props) => {
   return (
     <div id="wrapper" className={props.className}>
       <p>(This component is not required to pass the sprint)</p>
-      <div className="info">nnnn
+      <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
         <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
       </div>
