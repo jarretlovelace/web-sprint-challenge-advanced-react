@@ -106,18 +106,10 @@ const AppFunctional = (props) => {
             email: initialEmail, 
           }));
         } else {
-          setState((prevState) => ({
-             ...prevState, 
-             message: 'response.data.message',
-             }));
+          setState({ ...state, message: response.data.message });
         }
       })
-      .catch(() => {
-        setState((prevState) => ({
-          ...prevState,
-          message: 'Error submitting email',
-        }));
-        
+      .catch((error) => {
         if (email === 'foo@bar.baz') {
           setState({ ...state, message: 'foo@bar.baz failure #71' });
         } else {
@@ -166,4 +158,4 @@ const AppFunctional = (props) => {
   );
 };
 
-export default AppFunctional; 
+export default AppFunctional;
