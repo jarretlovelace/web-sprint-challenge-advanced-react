@@ -68,12 +68,11 @@ const AppFunctional = (props) => {
           errorMessage = "You cant go up";
           break;
         case 'down':
-          errorMessage = "You cant go down";
+          errorMessage = "You can't go down";
           break;
         default:
           break;
       }
-      console.log(`Invalid move: ${errorMessage}`);
       setState((prevState) => ({ ...prevState, message: errorMessage }));
     }
   };
