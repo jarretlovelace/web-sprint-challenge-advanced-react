@@ -53,19 +53,19 @@ const AppFunctional = (props) => {
         ...prevState,
         index: nextIndex,
         steps: prevState.steps + 1,
-        message: '',
+        message: '', 
       }));
     } else {
       let errorMessage = '';
       switch (direction) {
         case 'left':
-          errorMessage = "You cant go left";
+          errorMessage = "You can't go left";
           break;
         case 'right':
-          errorMessage = "You cant go right";
+          errorMessage = "You can't go right";
           break;
         case 'up':
-          errorMessage = "You cant go up";
+          errorMessage = "You can't go up";
           break;
         case 'down':
           errorMessage = "You can't go down";
@@ -157,5 +157,3 @@ const AppFunctional = (props) => {
     </div>
   );
 };
-
-export default AppFunctional;
