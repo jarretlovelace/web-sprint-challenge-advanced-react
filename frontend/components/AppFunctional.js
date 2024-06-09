@@ -123,14 +123,14 @@ const AppFunctional = (props) => {
   return (
     <div id="wrapper" className={props.className}>
       <p>(This component is not required to pass the sprint)</p>
-      <div className="info">
+      <div className="info">nnnn
         <h3 id="coordinates">{getXYMessage()}</h3>
         <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
       </div>
       <div id="grid">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
           <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
-            {idx === index ? 'B' : null}
+            {idx === index  ? 'B' : null}
           </div>
         ))}
       </div>
