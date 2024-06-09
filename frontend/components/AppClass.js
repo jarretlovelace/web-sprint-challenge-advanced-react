@@ -108,7 +108,7 @@ export default class AppClass extends React.Component {
         if (data.message === 'Success') {
           this.setState({
             message: 'Success!',
-            email: initialEmail, // Reset the email input
+            email: initialEmail, 
           });
         } else {
           this.setState({ message: data.message });
