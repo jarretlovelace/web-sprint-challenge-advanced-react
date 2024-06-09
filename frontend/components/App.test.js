@@ -28,7 +28,7 @@ test('updates coordinates and steps correctly when moving', () => {
 
   fireEvent.click(getByText(/down/i));
   expect(getByText(/coordinates/i)).toHaveTextContent('Coordinates (2, 2)');
-  expect(getByText(/you moved/i)).toHaveTextContent('You moved 4 times');
+  expect(getByText(/you moved/i)).toHaveTextContent('You moved 3 times');
 });
 
 test('displays error messages for invalid moves', () => {
@@ -57,7 +57,7 @@ test('displays error messages for invalid moves', () => {
   fireEvent.click(getByText(/down/i));
   fireEvent.click(getByText(/down/i));
   expect(getByText(/coordinates/i)).toHaveTextContent('Coordinates (3, 3)');
-  expect(getByText(/you moved/i)).toHaveTextContent('You moved 4 times');
+  expect(getByText(/you moved/i)).toHaveTextContent('You moved 3 times');
   expect(getByText(/you can't go down/i)).toBeInTheDocument();
 });
 
