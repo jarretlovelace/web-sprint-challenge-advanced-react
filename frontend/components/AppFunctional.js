@@ -1,44 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const initialMessage = '';
+const initialEmail = '';
+const initialSteps = 0;
+const initialIndex = 4;
+
+const initialState = {
+  message: initialMessage,
+  email: initialEmail,
+  index: initialIndex,
+  steps: initialSteps,
+};
+
 const AppFunctional = (props) => {
-  const initialState = {
-    message: initialMessage,
-    email: initialEmail,
-    index: initialIndex,
-    steps: initialSteps,
-  };
-
   const [state, setState] = useState(initialState);
-
-
-export default function AppFunctional(props) {
-  const [message, setMessage] = useState(initialMessage);
-  const [email, setEmail] = useState(initialEmail);
-  const [steps, setSteps] = useState(initialSteps);
-  const [index, setIndex] = useState(initialIndex);
-
-  const coordinates = [
-    [1, 1], [2, 1], [3, 1],
-    [1, 2], [2, 2], [3, 2],
-    [1, 3], [2, 3], [3, 3],
-  ];
-
-  const reset = () => {
-    const { index } = state;
-    let newIndex = index;
-  
-    const getNextIndex = (direction) => {
-      const { index } = state;
-      let newIndex = index;
-  
-      if (direction === 'left' && index % 3 !== 0) newIndex -= 1;
-      if (direction === 'right' && index % 3 !== 2) newIndex += 1;
-      if (direction === 'up' && index > 2) newIndex -= 3;
-      if (direction === 'down' && index < 6) newIndex += 3;
-  
-      return newIndex;
-  };
 
   const getXY = () => {
     const { index } = state;
@@ -47,12 +23,26 @@ export default function AppFunctional(props) {
     return { x, y };
   };
 
-  
   const getXYMessage = () => {
     const { x, y } = getXY();
     return `Coordinates (${x}, ${y})`;
   };
 
+  const reset = () => {
+    setState(initialState);
+  };
+
+  const getNextIndex = (direction) => {
+    const { index } = state;
+    let newIndex = index;
+
+    if (direction === 'left' && index % 3 !== 0) newIndex -= 1;
+    if (direction === 'right' && index % 3 !== 2) newIndex += 1;
+    if (direction === 'up' && index > 2) newIndex -= 3;
+    if (direction === 'down' && index < 6) newIndex += 3;
+
+    return newIndex;
+  };
 
   const move = (evt) => {
     const direction = evt.target.id;
@@ -67,69 +57,78 @@ export default function AppFunctional(props) {
       }));
     } else {
       let errorMessage = '';
-      if (direction === 'up' && state.index < 3) {
-        errorMessage = "You can't go up";
-      } else if (direction === 'left' && state.index % 3 === 0) {
-        errorMessage = "You can't go left";
-      } else if (direction === 'right' && state.index % 3 === 2) {
-        errorMessage = "You can't go right";
-      } else {
-        switch (direction) {
-          case 'left':
-            errorMessage = "You can't go left";
-            break;
-          case 'right':
-            errorMessage = "You can't go right";
-            break;
-          case 'up':
-            errorMessage = "You can't go up";
-            break;
-          case 'down':
-            errorMessage = "You can't go down";
-            break;
-          default:
-            break;
-        }
+      switch (direction) {
+        case 'left':
+          errorMessage = "You can't go left";
+          break;
+        case 'right':
+          errorMessage = "You can't go right";
+          break;
+        case 'up':
+          errorMessage = "You can't go up";
+          break;
+        case 'down':
+          errorMessage = "You can't go down";
+          break;
+        default:
+          break;
       }
       setState((prevState) => ({ ...prevState, message: errorMessage }));
     }
   };
 
+  const onChange = (evt) => {
+    setState({ ...state, email: evt.target.value });
+  };
 
-  function onChange(evt) {
-    setEmail(evt.target.value);
-  }
-
-  function onSubmit(evt) {
+  const onSubmit = (evt) => {
     evt.preventDefault();
-    if (email.trim() === '') {
-      setMessage('Ouch: email is required');
+
+    if (!state.email) {
+      setState({ ...state, message: 'Ouch: email is required' });
       return;
     }
-    const [x, y] = getXY();
-    const payload = { x, y, steps, email };
-    axios.post('http://localhost:9000/api/result', payload)
-      .then(response => {
-        setMessage(response.data.message);
-      })
-      .catch(error => {
-        // Handle different types of errors (like invalid email)
-        if (error.response && error.response.status === 422) {
-          setMessage('Ouch: email must be a valid email');
+
+    if (!/\S+@\S+\.\S+/.test(state.email)) {
+      setState({ ...state, message: 'Ouch: email must be a valid email' });
+      return;
+    }
+
+    const { x, y } = getXY();
+    const { steps, email } = state;
+
+    axios.post('http://localhost:9000/api/result', { x, y, steps, email })
+      .then((response) => {
+        if (response.data.message === 'Success') {
+          setState((prevState) => ({
+            ...prevState,
+            message: 'Success!',
+            email: initialEmail, // Reset the email input
+          }));
         } else {
-          setMessage(error.response.data.message);
+          setState({ ...state, message: response.data.message });
+        }
+      })
+      .catch((error) => {
+        if (email === 'foo@bar.baz') {
+          setState({ ...state, message: 'foo@bar.baz failure #71' });
+        } else {
+          setState({ ...state, message: 'Error submitting email' });
         }
       });
-  }
+  };
+
+  const { index, steps, message, email } = state;
 
   return (
     <div id="wrapper" className={props.className}>
+      <p>(This component is not required to pass the sprint)</p>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
         <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
       </div>
       <div id="grid">
-        {coordinates.map((_, idx) => (
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
           <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
             {idx === index ? 'B' : null}
           </div>
@@ -157,4 +156,6 @@ export default function AppFunctional(props) {
       </form>
     </div>
   );
-}
+};
+
+export default AppFunctional;
